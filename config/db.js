@@ -17,4 +17,4 @@ connection.connect(err => {
   //console.log('Connected to MySQL as ID', connection.threadId);
 });
 
-module.exports = connection;
+module.exports = connection.promise();
