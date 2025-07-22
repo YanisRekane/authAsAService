@@ -1,7 +1,7 @@
 const express = require('express');
 const db = require('../config/db');
 const bcrypt = require('bcrypt');
-const { generateAccessToken, generateRefreshToken } = require("../middleware/generateToken");
+const { generateAccessToken, generateRefreshToken, saveRefreshToken } = require("../middleware/generateToken");
 
 const login = async (req, res) => {
     const { email, password } = req.body;
@@ -25,6 +25,11 @@ const login = async (req, res) => {
         // Generate JWT token
         const accessToken = generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);
+
+        // 3. Save refresh token to DB
+        await saveRefreshToken(user.id, refreshToken); // this function inserts into DB
+
+
 
         res.cookie("refreshToken", refreshToken, {
             httpOnly: true,
