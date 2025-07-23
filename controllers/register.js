@@ -1,6 +1,8 @@
 const express = require('express');
 const db = require('../config/db');
 const bcrypt = require('bcrypt');
+const {generateEmailVerificationToken} = require('../middleware/generateToken')
+const {sendVerificationEmail} = require('../middleware/sendEmail')
 
 const register = async (req, res) => {
     const { username,email, password } = req.body;
@@ -21,7 +23,13 @@ const register = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
     
         // Insert new user into the database
-        await db.query('INSERT INTO users (username,email, password) VALUES (?, ?, ?)', [username,email, hashedPassword]);
+        const [results] = await db.query('INSERT INTO users (username,email, password) VALUES (?, ?, ?)', [username,email, hashedPassword]);
+
+        const newUserId = results.insertId;
+
+        const token = generateEmailVerificationToken(newUserId);
+        await sendVerificationEmail(email, token);
+
     
         res.status(201).json({ message: 'User registered successfully' });
     } catch (error) {

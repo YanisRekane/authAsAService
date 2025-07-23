@@ -30,10 +30,15 @@ async function findRefreshToken(token) {
   return result[0];
 }
 
+function generateEmailVerificationToken(userId) {
+  return jwt.sign({ userId }, process.env.EMAIL_SECRET, { expiresIn: '1d' });
+}
+
 module.exports = {
   generateAccessToken,
   generateRefreshToken,
   saveRefreshToken,
   removeRefreshToken,
   findRefreshToken,
+  generateEmailVerificationToken,
 };
