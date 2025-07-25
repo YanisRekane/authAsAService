@@ -5,11 +5,13 @@ const {generateEmailVerificationToken} = require('../middleware/generateToken')
 const {sendVerificationEmail} = require('../middleware/sendEmail')
 
 const register = async (req, res) => {
-    const { username,email, password } = req.body;
+    const { username,email, password, role} = req.body;
     
     if (!email || !password) {
         return res.status(400).json({ message: 'email and password are required' });
     }
+
+    const userRole = role || 'user';
     
     try {
         // Check if user already exists
@@ -23,7 +25,7 @@ const register = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
     
         // Insert new user into the database
-        const [results] = await db.query('INSERT INTO users (username,email, password) VALUES (?, ?, ?)', [username,email, hashedPassword]);
+        const [results] = await db.query('INSERT INTO users (username,email, password, role) VALUES (?, ?, ?, ?)', [username,email, hashedPassword, userRole]);
 
         const newUserId = results.insertId;
 
@@ -31,7 +33,7 @@ const register = async (req, res) => {
         await sendVerificationEmail(email, token);
 
     
-        res.status(201).json({ message: 'User registered successfully' });
+        res.status(201).json({ message: 'verification email sent' });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });

@@ -12,19 +12,29 @@ const login = async (req, res) => {
 
     try {
         // Check if user exists
-        const [user] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
-        if (user.length === 0) {
+        const [users] = await db.query('SELECT * FROM users WHERE email = ?', [email]);
+        if (users.length === 0) {
+            console.log('the account doesnt exict')
             return res.status(401).json({ message: 'Invalid email or password' });
         }
+
+        const user = users[0];
         // Compare the password with the hashed password in the database
-        const isMatch = await bcrypt.compare(password, user[0].password);
+        const isMatch = await bcrypt.compare(password, user.password);
         if (!isMatch) {
             return res.status(401).json({ message: 'Invalid email or password' });
         }
 
+        //check if the user is verified
+        if (!user.is_verified) {
+            return res.status(403).json({ message: "Email not verified" });
+        }
+
+
         // Generate JWT token
         const accessToken = generateAccessToken(user);
         const refreshToken = generateRefreshToken(user);
+
 
         // 3. Save refresh token to DB
         await saveRefreshToken(user.id, refreshToken); // this function inserts into DB

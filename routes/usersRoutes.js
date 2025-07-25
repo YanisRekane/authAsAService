@@ -5,7 +5,8 @@ const { login } = require('../controllers/login');
 const { refreshToken } = require("../controllers/refresh");
 const { logout } = require('../controllers/logout');
 const authLimiter = require('../middleware/rateLimiter')
-const verifyEmail = require('../controllers/verifyEmail'); // adjust path
+const verifyEmail = require('../controllers/verifyEmail');
+const auth = require('../middleware/auth')
 
 router.get('/verify-email', verifyEmail);
 router.post('/register',authLimiter, register);
