@@ -19,4 +19,15 @@ async function sendVerificationEmail(userEmail, token) {
   });
 }
 
-module.exports = {sendVerificationEmail}
+async function sendResetEmail(userEmail, token) {
+  const url = `https://localhost:3000/auth/reset-password?token=${token}&email=${encodeURIComponent(userEmail)}`;
+
+  await transporter.sendMail({
+    from: '"ASAS Auth" example@example.com',
+    to: userEmail,
+    subject: 'Reset your password',
+    html: `<p>Click the link below to reset your password:</p><a href="${url}">${url}</a>`
+  });
+}
+
+module.exports = {sendVerificationEmail, sendResetEmail}
